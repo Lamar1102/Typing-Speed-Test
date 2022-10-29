@@ -1,8 +1,9 @@
 import random
+import threading
 from tkinter import *
 from tkinter import ttk
 import time
-from threading import Timer
+from threading import Timer,Thread
 import ctypes
 
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
@@ -19,12 +20,14 @@ class Window:
         self.length_of_text = len(self.text)
 
         #Moving random text and counting how many words typed
-        self.xposition = 0.5
+        self.xposition = 0.75
         self.words_typed = 0
         self.timer_text = 60
+        self.correct_words = ""
         ##Tracking the keypress
         self.key_press = None
         self.random_text_index = 0
+
 
         #Setting up the window/frame
         self.window = Tk()
@@ -52,6 +55,26 @@ class Window:
         self.start_button.destroy()
         self.timer()
         self.text_update()
+    def restart(self):
+        self.window.destroy()
+        Window()
+
+    def stop_test(self):
+        self.random_text.destroy()
+        self.user_input.destroy()
+
+        self.correct_words_label.destroy()
+        self.timer_label.destroy()
+        self.timerr.destroy()
+
+
+        self.try_again = ttk.Button(self.frame,text="Try Again!",command=self.restart)
+        self.try_again.grid(row=1,column=0)
+
+        self.score = ttk.Label(self.frame,text=f"You typed {self.words_typed} words per minute!",font=34)
+        self.score.grid(row=0,column=0)
+
+
 
     def timer(self):
         timer = 3
@@ -66,30 +89,61 @@ class Window:
 
     def check_text(self,char,index):
         if char == self.random_text["text"][index]:
+
             self.random_text_index +=1
-            self.xposition-=.01
-            self.random_text.place(relx=self.xposition, rely=0.5)
+            self.xposition-=.015
+            self.correct_words += self.random_text["text"][index]
+
+
+            self.random_text.place(relx=self.xposition, rely=0.4)
+            self.correct_words_label.config(text=self.correct_words)
+            self.correct_words_label.place(relx=self.xposition, rely=0.6)
+
+
             if char == " ":
                 self.words_typed +=1
-        print(self.words_typed)
+
 
     def timer_update(self):
-        self.timerr = ttk.Label(self.frame, text=self.timer_text)
-        self.timerr.place(relx=0.5, rely=.1)
-        self.timer_text -=1
+        time_on = True
+        while time_on:
+            self.timer_text -= 1
+            self.timerr.config(text=self.timer_text)
+            print(self.timer_text)
+
+
+            if self.timer_text == 0:
+                time_on = False
+                self.timerr.config(text=self.timer_text)
+
+            time.sleep(1)
+
+        self.stop_test()
 
     def text_update(self):
 
         self.timer_label.destroy()
 
-        self.random_text = ttk.Label(self.frame,text=self.text)
-        self.random_text.place(relx=self.xposition,rely=0.5)
+        self.random_text = ttk.Label(self.frame, text=self.text,font=24)
+        self.random_text.place(relx=self.xposition,rely=.4)
 
-        self.user_input = ttk.Label(self.frame, text="", font=(('Helvatical bold', 20)))
-        self.user_input.place(relx=0.5, rely=.6)
+        self.user_input = ttk.Label(self.frame, text="", font=(('Helvatical bold', 30)))
+        self.user_input.place(relx=0.5, rely=.75)
 
-        self.timerr = ttk.Label(self.frame,text=self.timer_text)
-        self.timerr.place(relx=0.5,rely=.1)
+        self.correct_words_label = ttk.Label(self.frame, text=self.correct_words, foreground="Green",font=24)
+
+        self.timerr = ttk.Label(self.frame, text=self.timer_text, font=30)
+        self.timerr.place(relx=0.5, rely=.1)
+        # self.t = Timer(1, self.timer_update)
+        # self.t.start()
+
+        self.thread = Thread(target=self.timer_update)
+        self.thread.daemon = True
+        self.thread.start()
+
+
+
+
 
 
         def key_pressed(event):
