@@ -18,6 +18,9 @@ class Window:
         ]
         self.text = random.choice(self.possibleTexts)
         self.length_of_text = len(self.text)
+        #
+        # self.left_label_text =
+        # self.right_label_text =
 
         #Moving random text and counting how many words typed
         self.xposition = 0.75
@@ -32,7 +35,7 @@ class Window:
         #Setting up the window/frame
         self.window = Tk()
         self.window.title("Speed Typing Test")
-        self.window.geometry("500x500")
+        self.window.geometry("700x700")
         self.frame = ttk.Frame(self.window,padding=20)
         self.frame.grid()
 
@@ -91,13 +94,13 @@ class Window:
         if char == self.random_text["text"][index]:
 
             self.random_text_index +=1
-            self.xposition-=.015
+            self.xposition-=.014
             self.correct_words += self.random_text["text"][index]
 
 
             self.random_text.place(relx=self.xposition, rely=0.4)
-            self.correct_words_label.config(text=self.correct_words)
-            self.correct_words_label.place(relx=self.xposition, rely=0.6)
+            self.correct_words_label.config(text=self.correct_words,wraplength=600)
+            self.correct_words_label.place(relx=0.1, rely=0.6)
 
 
             if char == " ":
@@ -130,7 +133,7 @@ class Window:
         self.user_input = ttk.Label(self.frame, text="", font=(('Helvatical bold', 30)))
         self.user_input.place(relx=0.5, rely=.75)
 
-        self.correct_words_label = ttk.Label(self.frame, text=self.correct_words, foreground="Green",font=24)
+        self.correct_words_label = ttk.Label(self.frame, text=self.correct_words, foreground="Green",font=24,wraplength=700)
 
         self.timerr = ttk.Label(self.frame, text=self.timer_text, font=30)
         self.timerr.place(relx=0.5, rely=.1)
@@ -140,11 +143,6 @@ class Window:
         self.thread = Thread(target=self.timer_update)
         self.thread.daemon = True
         self.thread.start()
-
-
-
-
-
 
         def key_pressed(event):
             self.user_input["text"]=""
